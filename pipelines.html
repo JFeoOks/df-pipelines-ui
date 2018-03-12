@@ -168,6 +168,159 @@
         addLogEntry('alert success', '<strong>Success!</strong> ' + message);
     }
 
+    // create a network
+    var container = document.getElementById('mynetwork');
+
+    var options = {
+        nodes: {
+            shape: 'box',
+            shadow: true,
+            font: {size: 18},
+            widthConstraint: {minimum: 120, maximum: 170}
+        },
+
+        edges: {
+            shadow: true,
+            arrows: 'to'
+        },
+
+        interaction: {
+            keyboard: {enabled: true},
+            multiselect: true,
+            navigationButtons: true
+        },
+
+        layout: {
+            hierarchical: true
+        }
+    };
+
+    var chains = new Set();
+    var dataSetOptions = {};
+    var nodes = new vis.DataSet(dataSetOptions);
+
+    nodes.on('add', function (event, properties, senderId) {
+        var addedNodes = nodes.get(properties.item);
+
+        for (var i = 0; i < addedNodes.length; i++) {
+            chains.add(addedNodes[i].chain);
+        }
+    });
+
+    var edges = new vis.DataSet();
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+    var network = new vis.Network(container, data, options);
+
+    var lastClusterZoomLevel = 0;
+    var clusterFactor = 0.9;
+    var clusterIndex = 0;
+    var clusters = [];
+
+    // set the first initial zoom level
+    network.once('initRedraw', function () {
+            if (lastClusterZoomLevel === 0) {
+                lastClusterZoomLevel = network.getScale() * clusterFactor;
+            }
+        }
+    );
+
+    // we use the zoom event for our clustering
+    network.on('zoom', function (params) {
+            if (params.direction === '-') {
+                if (params.scale < lastClusterZoomLevel) makeClusters(params.scale);
+            }
+            else {
+                openClusters(params.scale);
+            }
+        }
+    );
+
+    // make the clusters
+    function makeClusters(scale) {
+        chains.forEach(function (currentChain) {
+                (function (currentChain) {
+                        var clusterOptions = {
+                            joinCondition: function (childOptions) {
+                                return childOptions.chain === currentChain;
+                            },
+
+                            processProperties: function (clusterOptions, childNodesOptions, childEdgesOptions) {
+                                clusterIndex = clusterIndex + 1;
+
+                                var childrenCount = 0;
+                                var colors = [];
+
+                                for (var i = 0; i < childNodesOptions.length; i++) {
+                                    childrenCount += childNodesOptions[i].childrenCount || 1;
+                                    colors.push(childNodesOptions[i].color.background);
+                                }
+
+                                if (colors.includes('#FB7E81')) clusterOptions.color = '#FB7E81';
+                                else if (colors.includes('#00FF00')) clusterOptions.color = '#00FF00';
+
+                                clusterOptions.childrenCount = childrenCount;
+                                clusterOptions.label = currentChain;
+                                clusterOptions.font = {size: childrenCount * 5 + 30};
+                                clusterOptions.id = 'cluster:' + clusterIndex;
+                                clusters.push({id: 'cluster:' + clusterIndex, scale: scale});
+                                return clusterOptions;
+                            },
+
+                            clusterNodeProperties: {
+                                allowSingleNodeCluster: true
+                            }
+                        };
+
+                        network.cluster(clusterOptions);
+                    }
+                )(currentChain);
+            }
+        );
+    }
+
+    // open them back up!
+    function openClusters(scale) {
+        var newClusters = [];
+        for (var i = 0; i < clusters.length; i++) {
+            if (clusters[i].scale < scale && scale > lastClusterZoomLevel) {
+                network.openCluster(clusters[i].id);
+            }
+            else {
+                newClusters.push(clusters[i])
+            }
+        }
+        clusters = newClusters;
+    }
+
+    // if we click on a node, we want to open it up!
+    network.on("selectNode", function (params) {
+        if (params.nodes.length === 1) {
+            if (network.isCluster(params.nodes[0]) === true) {
+                network.openCluster(params.nodes[0]);
+
+                for (var i = 0; i < clusters.length; i++) {
+                    if (clusters[i].id === params.nodes[0]) {
+                        clusters.splice(i, 1);
+                    }
+                }
+            }
+        }
+    });
+
+    //focus on double click
+    network.on('doubleClick', function (params) {
+        // network.focus()
+        var options = {
+            animation: {
+                duration: 1000
+            }
+        };
+        network.focus(params.nodes[0], options)
+    });
+
     // Добавление записи (
     // https://stackoverflow.com/questions/1520178/jquery-using-append-with-effects
     // http://ts-soft.ru/blog/jquery-create-element
@@ -185,18 +338,9 @@
                         //red - #FB7E81
                         //blue - #97C2FC
 
-                        var chains = new Set();
-
-                        var dataSetOptions = {};
-                        var nodes = new vis.DataSet(dataSetOptions);
-
-                        nodes.on('add', function (event, properties, senderId) {
-                            var addedNodes = nodes.get(properties.item);
-
-                            for (var i = 0; i < addedNodes.length; i++) {
-                                chains.add(addedNodes[i].chain);
-                            }
-                        });
+                        chains = new Set();
+                        nodes.clear();
+                        edges.clear();
 
                         nodes.add(
                             [
@@ -210,159 +354,13 @@
                         );
 
                         // create an array with edges
-                        var edges = new vis.DataSet([
+                        edges.add([
                             {from: 1, to: 2},
                             {from: 2, to: 3},
                             {from: 3, to: 4},
                             {from: 4, to: 5},
                             {from: 5, to: 6}
                         ]);
-
-                        // create a network
-                        var container = document.getElementById('mynetwork');
-                        var data = {
-                            nodes: nodes,
-                            edges: edges
-                        };
-
-                        var options = {
-                            nodes: {
-                                shape: 'box',
-                                shadow: true,
-                                font: {size: 18},
-                                widthConstraint: {minimum: 120, maximum: 170}
-                            },
-
-                            edges: {
-                                shadow: true,
-                                arrows: 'to'
-                            },
-
-                            interaction: {
-                                keyboard: {enabled: true},
-                                multiselect: true,
-                                navigationButtons: true
-                            },
-
-                            layout: {
-                                hierarchical: true
-                            }
-                        };
-
-                        //Workaround для груп и цвета
-                        // options.groups = {};
-                        // for (var i = 0; i <= nodes.length; i++) {
-                        //     options.groups[i] = {};
-                        // }
-
-                        var network = new vis.Network(container, data, options);
-
-                        var lastClusterZoomLevel = 0;
-                        var clusterFactor = 0.9;
-                        var clusterIndex = 0;
-                        var clusters = [];
-
-                        // set the first initial zoom level
-                        network.once('initRedraw', function () {
-                                if (lastClusterZoomLevel === 0) {
-                                    lastClusterZoomLevel = network.getScale() * clusterFactor;
-                                }
-                            }
-                        );
-
-                        // we use the zoom event for our clustering
-                        network.on('zoom', function (params) {
-                                if (params.direction === '-') {
-                                    if (params.scale < lastClusterZoomLevel) makeClusters(params.scale);
-                                }
-                                else {
-                                    openClusters(params.scale);
-                                }
-                            }
-                        );
-
-                        // make the clusters
-                        function makeClusters(scale) {
-                            chains.forEach(function (currentChain) {
-                                    (function (currentChain) {
-                                            var clusterOptions = {
-                                                joinCondition: function (childOptions) {
-                                                    return childOptions.chain === currentChain;
-                                                },
-
-                                                processProperties: function (clusterOptions, childNodesOptions, childEdgesOptions) {
-                                                    clusterIndex = clusterIndex + 1;
-
-                                                    var childrenCount = 0;
-                                                    var colors = [];
-
-                                                    for (var i = 0; i < childNodesOptions.length; i++) {
-                                                        childrenCount += childNodesOptions[i].childrenCount || 1;
-                                                        colors.push(childNodesOptions[i].color.background);
-                                                    }
-
-                                                    if (colors.includes('#FB7E81')) clusterOptions.color = '#FB7E81';
-                                                    else if (colors.includes('#00FF00')) clusterOptions.color = '#00FF00';
-
-                                                    clusterOptions.childrenCount = childrenCount;
-                                                    clusterOptions.label = currentChain;
-                                                    clusterOptions.font = {size: childrenCount * 5 + 30};
-                                                    clusterOptions.id = 'cluster:' + clusterIndex;
-                                                    clusters.push({id: 'cluster:' + clusterIndex, scale: scale});
-                                                    return clusterOptions;
-                                                },
-
-                                                clusterNodeProperties: {
-                                                    allowSingleNodeCluster: true
-                                                }
-                                            };
-
-                                            network.cluster(clusterOptions);
-                                        }
-                                    )(currentChain);
-                                }
-                            );
-                        }
-
-                        // open them back up!
-                        function openClusters(scale) {
-                            var newClusters = [];
-                            for (var i = 0; i < clusters.length; i++) {
-                                if (clusters[i].scale < scale && scale > lastClusterZoomLevel) {
-                                    network.openCluster(clusters[i].id);
-                                }
-                                else {
-                                    newClusters.push(clusters[i])
-                                }
-                            }
-                            clusters = newClusters;
-                        }
-
-                        // if we click on a node, we want to open it up!
-                        network.on("selectNode", function (params) {
-                            if (params.nodes.length === 1) {
-                                if (network.isCluster(params.nodes[0]) === true) {
-                                    network.openCluster(params.nodes[0]);
-
-                                    for (var i = 0; i < clusters.length; i++) {
-                                        if (clusters[i].id === params.nodes[0]) {
-                                            clusters.splice(i, 1);
-                                        }
-                                    }
-                                }
-                            }
-                        });
-
-                        //focus on double click
-                        network.on('doubleClick', function (params) {
-                            // network.focus()
-                            var options = {
-                                animation: {
-                                    duration: 1000
-                                }
-                            };
-                            network.focus(params.nodes[0], options)
-                        });
                     }
                 }
             }
