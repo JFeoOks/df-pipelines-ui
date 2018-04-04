@@ -5,8 +5,18 @@
     <title>Pipelines Showcase</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src='http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js'></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
     <script src="./dist/vis.js"></script>
+    <script src="js/index.js"></script>
+
     <link href="./dist/vis-network.min.css" rel="stylesheet" type="text/css"/>
+    <link href="./css/style.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
 
     <style type="text/css">
         body, html {
@@ -50,7 +60,7 @@
             display: table-cell;
         }
 
-        #text {
+        #messages {
             position: absolute;
             width: 25%;
             height: 100%;
@@ -66,7 +76,7 @@
             left: 0;
         }
 
-        #text {
+        #messages {
             top: 0;
             right: 0;
         }
@@ -123,15 +133,25 @@
         <span id="error"></span>
     </div>
 
-
     <div id="contents">
         <!--Текствое окно-->
-        <div id="text">
+        <div id="messages">
+            <div id="custom-search-input">
+                <div class="input-group col-md-12">
+                    <input id="text-box" type="text" class="form-control input-lg" placeholder="Search"/>
+                    <span class="input-group-btn">
+                        <button id="search-button" class="btn btn-info btn-lg" type="button" onclick="loadRouteLogs()">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
             <div id="data">
             </div>
         </div>
 
-        <!--Форма для отображения цепочки-->
+        <!--&lt;!&ndash;Форма для отображения цепочки&ndash;&gt;-->
+
         <div id="dfdraw">
             <div id="mynetwork"></div>
         </div>
@@ -139,34 +159,28 @@
 </div>
 
 <script type="text/javascript">
+    // // Get the input field
+    var input = document.getElementById("text-box");
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function (event) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+            // Trigger the button element with a click
+            document.getElementById("search-button").click();
+        }
+    });
 
-    setTimeout(function () {
-        successElement('Indicates a successful or positive action')
-    }, 500);
-    setTimeout(function () {
-        successElement('Indicates a successful or positive action')
-    }, 1250);
-    setTimeout(function () {
-        errorElement('Indicates a dangerous or potentially negative action.')
-    }, 2000);
-
-    // Добавление ноды
-    // document.getElementById("data").onclick = function() {
-    //     edges.add({from: nodes.length, to: nodes.length + 1});
-    //     nodes.add({id: nodes.length + 1, label: 'Node' + (nodes.length + 1)});
-    // };
-
-    function errorElement(message) {
-        addLogEntry('alert', '<strong>Error!</strong> ' + message);
-    }
-
-    function warningElement(message) {
-        addLogEntry('alert warning', '<strong>Warning!</strong> ' + message);
-    }
-
-    function successElement(message) {
-        addLogEntry('alert success', '<strong>Success!</strong> ' + message);
-    }
+    // setTimeout(function () {
+    //     successElement('Indicates a successful or positive action')
+    // }, 500);
+    // setTimeout(function () {
+    //     successElement('Indicates a successful or positive action')
+    // }, 1250);
+    // setTimeout(function () {
+    //     errorElement('Indicates a dangerous or potentially negative action.')
+    // }, 2000);
 
     // create a network
     var container = document.getElementById('mynetwork');
@@ -184,11 +198,11 @@
             arrows: 'to'
         },
 
-        interaction: {
-            keyboard: {enabled: true},
-            multiselect: true,
-            navigationButtons: true
-        },
+        // interaction: {
+        //     keyboard: {enabled: true},
+        //     multiselect: true,
+        //     navigationButtons: true
+        // },
 
         layout: {
             hierarchical: true
@@ -238,63 +252,6 @@
         }
     );
 
-    // make the clusters
-    function makeClusters(scale) {
-        chains.forEach(function (currentChain) {
-                (function (currentChain) {
-                        var clusterOptions = {
-                            joinCondition: function (childOptions) {
-                                return childOptions.chain === currentChain;
-                            },
-
-                            processProperties: function (clusterOptions, childNodesOptions, childEdgesOptions) {
-                                clusterIndex = clusterIndex + 1;
-
-                                var childrenCount = 0;
-                                var colors = [];
-
-                                for (var i = 0; i < childNodesOptions.length; i++) {
-                                    childrenCount += childNodesOptions[i].childrenCount || 1;
-                                    colors.push(childNodesOptions[i].color.background);
-                                }
-
-                                if (colors.includes('#FB7E81')) clusterOptions.color = '#FB7E81';
-                                else if (colors.includes('#00FF00')) clusterOptions.color = '#00FF00';
-
-                                clusterOptions.childrenCount = childrenCount;
-                                clusterOptions.label = currentChain;
-                                clusterOptions.font = {size: childrenCount * 5 + 30};
-                                clusterOptions.id = 'cluster:' + clusterIndex;
-                                clusters.push({id: 'cluster:' + clusterIndex, scale: scale});
-                                return clusterOptions;
-                            },
-
-                            clusterNodeProperties: {
-                                allowSingleNodeCluster: true
-                            }
-                        };
-
-                        network.cluster(clusterOptions);
-                    }
-                )(currentChain);
-            }
-        );
-    }
-
-    // open them back up!
-    function openClusters(scale) {
-        var newClusters = [];
-        for (var i = 0; i < clusters.length; i++) {
-            if (clusters[i].scale < scale && scale > lastClusterZoomLevel) {
-                network.openCluster(clusters[i].id);
-            }
-            else {
-                newClusters.push(clusters[i])
-            }
-        }
-        clusters = newClusters;
-    }
-
     // if we click on a node, we want to open it up!
     network.on("selectNode", function (params) {
         if (params.nodes.length === 1) {
@@ -321,52 +278,6 @@
         network.focus(params.nodes[0], options)
     });
 
-    // Добавление записи (
-    // https://stackoverflow.com/questions/1520178/jquery-using-append-with-effects
-    // http://ts-soft.ru/blog/jquery-create-element
-    // )
-
-    function addLogEntry(className, message) {
-        $('<div/>', {
-                class: className,
-                style: 'display: none;',
-                html: message,
-                on: {
-                    click: function () {
-                        // create an array with nodes
-                        //green - #00FF00
-                        //yellow - ##FFFF00
-                        //red - #FB7E81
-                        //blue - #97C2FC
-
-                        chains = new Set();
-                        nodes.clear();
-                        edges.clear();
-
-                        nodes.add(
-                            [
-                                {id: 1, label: 'JMS Queue Generator', chain: 'Chain 1', color: '#00FF00'},
-                                {id: 2, label: 'Log Record Queue Processor', chain: 'Chain 1', color: '#00FF00'},
-                                {id: 3, label: 'String Builder Record Queue', chain: 'Chain 1', color: '#00FF00'},
-                                {id: 4, label: 'MD Record Custom JMS Processor', chain: 'Chain 2', color: '#FB7E81'},
-                                {id: 5, label: 'String Builder Record Queue', chain: 'Chain 2', color: '#97C2FC'},
-                                {id: 6, label: 'Record Queue Splitter', chain: 'Chain 3', color: '#97C2FC'}
-                            ]
-                        );
-
-                        // create an array with edges
-                        edges.add([
-                            {from: 1, to: 2},
-                            {from: 2, to: 3},
-                            {from: 3, to: 4},
-                            {from: 4, to: 5},
-                            {from: 5, to: 6}
-                        ]);
-                    }
-                }
-            }
-        ).prependTo('#data').slideDown().show('slow');
-    }
 </script>
 </body>
 </html>
