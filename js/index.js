@@ -97,8 +97,8 @@ function addLogEntry(element, className, message) {
                     nodes.add(element);
 
                     var edgesArray = [];
-                    for (var i = 1; i <= element.length - 1; i++) {
-                        edgesArray.push({from: i, to: i + 1});
+                    for (var i = 0; i < element.length - 1; i++) {
+                        edgesArray.push({from: element[i].id, to: element[i + 1].id});
                     }
 
                     edges.add(edgesArray);
