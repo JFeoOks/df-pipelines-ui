@@ -1,3 +1,151 @@
+body, html {
+    font: 10pt sans;
+    line-height: 1.5em;;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    color: #4d4d4d;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+
+#header {
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#contents {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    bottom: 10px;
+    display: table;
+}
+
+#dfdraw {
+    position: absolute;
+    width: 75%;
+    height: 100%;
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: table-cell;
+}
+
+#messages {
+    position: absolute;
+    width: 25%;
+    height: 100%;
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: auto;
+    display: table-cell;
+}
+
+#dfdraw {
+    top: 0;
+    left: 0;
+}
+
+#messages {
+    top: 0;
+    right: 0;
+}
+
+#error {
+    color: red;
+}
+
+#data {
+    width: 100%;
+    height: 94.1%;
+    border: 1px solid #d3d3d3;
+    box-sizing: border-box;
+    resize: none;
+    border-radius: 6px;
+}
+
+#mynetwork {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #d3d3d3;
+    box-sizing: border-box;
+    border-radius: 6px;
+}
+
+a:hover {
+    color: red;
+}
+
+/* The alert message box */
+.alert {
+    padding: 15px;
+    background-color: #f44336;
+    color: white;
+    opacity: 0.83;
+    transition: opacity 0.6s;
+    margin-bottom: 1px;
+    font-size: 125%;
+    border-radius: 15px;
+}
+
+.alert.success {
+    background-color: #4CAF50;
+}
+
+.alert.warning {
+    background-color: #ff9800;
+
+}
+
 #custom-search-input{
     padding: 3px;
     border: solid 1px #E4E4E4;

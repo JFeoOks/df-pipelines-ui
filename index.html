@@ -5,7 +5,7 @@
     <title>Pipelines Showcase</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src='http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js'></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
@@ -19,111 +19,7 @@
 
 
     <style type="text/css">
-        body, html {
-            font: 10pt sans;
-            line-height: 1.5em;;
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
-            color: #4d4d4d;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
 
-        #header {
-            margin: 0;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        #contents {
-            width: 100%;
-            margin: 0 auto;
-            padding: 0;
-            box-sizing: border-box;
-            left: 10px;
-            right: 10px;
-            top: 10px;
-            bottom: 10px;
-            display: table;
-        }
-
-        #dfdraw {
-            position: absolute;
-            width: 75%;
-            height: 100%;
-            margin: 0;
-            padding: 10px;
-            box-sizing: border-box;
-            overflow: hidden;
-            display: table-cell;
-        }
-
-        #messages {
-            position: absolute;
-            width: 25%;
-            height: 100%;
-            margin: 0;
-            padding: 10px;
-            box-sizing: border-box;
-            overflow: auto;
-            display: table-cell;
-        }
-
-        #dfdraw {
-            top: 0;
-            left: 0;
-        }
-
-        #messages {
-            top: 0;
-            right: 0;
-        }
-
-        #error {
-            color: red;
-        }
-
-        #data {
-            width: 100%;
-            height: 100%;
-            border: 1px solid #d3d3d3;
-            box-sizing: border-box;
-            resize: none;
-        }
-
-        #mynetwork {
-            width: 100%;
-            height: 100%;
-            border: 1px solid #d3d3d3;
-            box-sizing: border-box;
-        }
-
-        a:hover {
-            color: red;
-        }
-
-        /* The alert message box */
-        .alert {
-            padding: 15px;
-            background-color: #f44336;
-            color: white;
-            opacity: 0.83;
-            transition: opacity 0.6s;
-            margin-bottom: 1px;
-            font-size: 125%;
-            border-radius: 15px;
-        }
-
-        .alert.success {
-            background-color: #4CAF50;
-        }
-
-        .alert.warning {
-            background-color: #ff9800;
-
-        }
     </style>
 </head>
 <body>
@@ -131,6 +27,10 @@
 <div id="header">
     <div>
         <span id="error"></span>
+    </div>
+
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
     </div>
 
     <div id="contents">
@@ -172,16 +72,6 @@
         }
     });
 
-    // setTimeout(function () {
-    //     successElement('Indicates a successful or positive action')
-    // }, 500);
-    // setTimeout(function () {
-    //     successElement('Indicates a successful or positive action')
-    // }, 1250);
-    // setTimeout(function () {
-    //     errorElement('Indicates a dangerous or potentially negative action.')
-    // }, 2000);
-
     // create a network
     var container = document.getElementById('mynetwork');
 
@@ -198,11 +88,6 @@
             arrows: 'to'
         },
 
-        // interaction: {
-        //     keyboard: {enabled: true},
-        //     multiselect: true,
-        //     navigationButtons: true
-        // },
 
         layout: {
             hierarchical: true
