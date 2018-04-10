@@ -111,7 +111,7 @@ function addLogEntry(element, className, message) {
 function loadRouteLogs() {
     $.ajax({
         type: "GET",
-        url: "/route/data",
+        url: "/route/data/search",
         data: $("#text-box").val(),
         success: function (msg) {
             $("#data").empty();
@@ -120,17 +120,17 @@ function loadRouteLogs() {
             for (var i = 0; i < routesStrings.length; i++) {
                 var routeData = JSON.parse(routesStrings[i]);
                 var message =
-                    "<br>Log Id: " + routeData.id;
+                    "<br>Session Id: " + routeData.session_id;
 
                 switch (routeData.status) {
                     case "SUCCESS":
-                        successElement(routeData.element, message);
+                        successElement(routeData.elements, message);
                         break;
                     case "ERROR":
-                        errorElement(routeData.element, message);
+                        errorElement(routeData.elements, message);
                         break;
                     case "WARNING":
-                        warningElement(routeData.element, message);
+                        warningElement(routeData.elements, message);
                 }
             }
 
@@ -138,10 +138,33 @@ function loadRouteLogs() {
     });
 }
 
-function openNav() {
-    document.getElementById("mySidenav").style.width = "250px";
-}
+var urlParams = new URLSearchParams(window.location.search);
 
-function closeNav() {
-    document.getElementById("mySidenav").style.width = "0";
-}
+window.onload = function initLoadRouteLogsByConfiguration() {
+    $.ajax({
+        type: "GET",
+        url: "/route/data/init/config?id=" + urlParams.get("object"),
+        data: $("#text-box").val(),
+        success: function (msg) {
+            $("#data").empty();
+
+            var routesStrings = JSON.parse(msg);
+            for (var i = 0; i < routesStrings.length; i++) {
+                var routeData = JSON.parse(routesStrings[i]);
+                var message = "<br>Session Id: " + routeData.session_id;
+
+                switch (routeData.status) {
+                    case "SUCCESS":
+                        successElement(routeData.elements, message);
+                        break;
+                    case "ERROR":
+                        errorElement(routeData.elements, message);
+                        break;
+                    case "WARNING":
+                        warningElement(routeData.elements, message);
+                }
+            }
+
+        }
+    });
+};
