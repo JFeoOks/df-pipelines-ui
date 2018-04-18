@@ -5,19 +5,17 @@
     <title>Pipelines Showcase</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
     <script src="./dist/vis.js"></script>
-    <script src="js/index.js"></script>
+    <script src="./dist/jquery.twbsPagination.js"></script>
+    <script src="./js/index.js"></script>
 
     <link href="./dist/vis-network.min.css" rel="stylesheet" type="text/css"/>
     <link href="./css/style.css" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-
     <style type="text/css">
 
     </style>
@@ -30,20 +28,22 @@
     </div>
 
     <div id="contents">
-        <!--Текствое окно-->
-        <div id="messages">
-            <div id="custom-search-input">
-                <div class="input-group col-md-12">
-                    <input id="text-box" type="text" class="form-control input-lg" placeholder="Search"/>
-                    <span class="input-group-btn">
-                        <button id="search-button" class="btn btn-info btn-lg" type="button" onclick="loadRouteLogs()">
+            <!--Текствое окно-->
+            <div id="messages">
+                <div id="custom-search-input">
+                    <div class="input-group col-md-12">
+                        <input id="text-box" type="text" class="form-control input-lg" placeholder="Search"/>
+                        <span class="input-group-btn">
+                        <button id="search-button" class="btn btn-info btn-lg" type="button" onclick="search()">
                             <i class="glyphicon glyphicon-search"></i>
                         </button>
                     </span>
+                    </div>
                 </div>
+                <div id="data">
+                </div>
+                <ul id="pagination-demo" class="page-box pagination-sm center-block"></ul>
             </div>
-            <div id="data"></div>
-        </div>
 
         <!--&lt;!&ndash;Форма для отображения цепочки&ndash;&gt;-->
 
@@ -83,7 +83,6 @@
             arrows: 'to'
         },
 
-
         layout: {
             hierarchical: true
         }
@@ -107,45 +106,6 @@
         edges: edges
     };
     var network = new vis.Network(container, data, options);
-
-    var lastClusterZoomLevel = 0;
-    var clusterFactor = 0.9;
-    var clusterIndex = 0;
-    var clusters = [];
-
-    // set the first initial zoom level
-    network.once('initRedraw', function () {
-            if (lastClusterZoomLevel === 0) {
-                lastClusterZoomLevel = network.getScale() * clusterFactor;
-            }
-        }
-    );
-
-    // we use the zoom event for our clustering
-    network.on('zoom', function (params) {
-            if (params.direction === '-') {
-                if (params.scale < lastClusterZoomLevel) makeClusters(params.scale);
-            }
-            else {
-                openClusters(params.scale);
-            }
-        }
-    );
-
-    // if we click on a node, we want to open it up!
-    network.on("selectNode", function (params) {
-        if (params.nodes.length === 1) {
-            if (network.isCluster(params.nodes[0]) === true) {
-                network.openCluster(params.nodes[0]);
-
-                for (var i = 0; i < clusters.length; i++) {
-                    if (clusters[i].id === params.nodes[0]) {
-                        clusters.splice(i, 1);
-                    }
-                }
-            }
-        }
-    });
 
     //focus on double click
     network.on('doubleClick', function (params) {
