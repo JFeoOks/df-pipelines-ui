@@ -176,22 +176,40 @@ function refresgPaging() {
     isLoaded = true;
 }
 
+function initLoadRouteLogs() {
+    loadRouteLogsAndAddToAll("/route/data/init/config?lastLog=" + lastLogId + "&id=" + urlParams.get("object"))
+}
+
+function loadRouteLogsAndAddToAll(url) {
+    $.ajax({
+        type: "GET",
+        url: url,
+        data: $("#text-box").val(),
+        success: function (msg) {
+            allLogs.concat(parseMessage(msg));
+        }
+    });
+}
+
 function loadRouteLogs(url) {
     $.ajax({
         type: "GET",
         url: url,
-        success: parseMessageFunction
+        data: $("#text-box").val(),
+        success: parseMessage
     });
 }
+
 
 var urlParams = new URLSearchParams(window.location.search);
 
 window.onload = function initLoadRouteLogsByConfiguration() {
     clearData();
-    loadRouteLogs("/route/data/init/config?lastLog=" + lastLogId + "&id=" + urlParams.get("object"));
+    initLoadRouteLogs();
 };
 
-var parseMessageFunction = function parseMessage(msg) {
+function parseMessage(msg) {
+    var allLogs = [];
     var logStrings = JSON.parse(msg);
 
     if (logStrings.length === 0) {
@@ -206,11 +224,12 @@ var parseMessageFunction = function parseMessage(msg) {
     }
 
     refresgPaging();
+
+    return allLogs;
 };
 
 function addElement(routeLog) {
-    lastLogId = routeLog.id;
-
+    if (routeLog.id > lastLogId) lastLogId = routeLog.id;
 
     var message = "Log Id: " + routeLog.id;
     switch (routeLog.status) {
@@ -269,13 +288,12 @@ function addLogEntry(routeLog, className, message) {
                     nodes.clear();
                     edges.clear();
 
-                    nodes.add(elements);
-
                     var edgesArray = [];
                     for (var i = 0; i < elements.length - 1; i++) {
                         edgesArray.push({from: elements[i].id, to: elements[i + 1].id});
                     }
 
+                    nodes.add(elements);
                     edges.add(edgesArray);
                 }
             }
