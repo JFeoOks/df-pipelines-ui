@@ -59,11 +59,8 @@ const ID_PREF = "ID=";
 const STATUS_PREF = "STATUS=";
 
 function search() {
-    var rules = buildRules($("#text-box").val().split("&"));
-
     clearData();
-    addFoundedElements(rules);
-    refresgPaging();
+    addFoundedElements();
 }
 
 function buildRules(searchExpressions) {
@@ -143,14 +140,28 @@ function clearData() {
     addNewPage();
 }
 
-function addFoundedElements(rules) {
+function addFoundedElements() {
+    var searchExpression = $("#text-box").val();
+    var rules = buildRules(searchExpression.split("&"));
+    var addedElementsCount = 0;
+
     if (rules.length > 0) {
         for (let i = 0; i < allLogs.length; i++) {
             if (checkEntryForRules(allLogs[i], rules)) {
                 addElement(allLogs[i]);
+                addedElementsCount++;
             }
         }
+
+        if (addedElementsCount < 100)
+            loadRouteLogs("/route/data/search?lastLog=" + lastLogId + "&" + searchExpression);
+    } else {
+        for (let i = 0; i < allLogs.length; i++) {
+            addElement(allLogs[i]);
+        }
     }
+
+    refresgPaging();
 }
 
 function refresgPaging() {
@@ -169,7 +180,6 @@ function loadRouteLogs(url) {
     $.ajax({
         type: "GET",
         url: url,
-        data: $("#text-box").val(),
         success: parseMessageFunction
     });
 }
@@ -189,7 +199,6 @@ var parseMessageFunction = function parseMessage(msg) {
     }
 
     for (var i = 0; i < logStrings.length; i++) {
-        lastLogId = logStrings[i].id;
         logStrings[i].data = JSON.parse(logStrings[i].data);
         allLogs.push(logStrings[i]);
 
@@ -200,6 +209,9 @@ var parseMessageFunction = function parseMessage(msg) {
 };
 
 function addElement(routeLog) {
+    lastLogId = routeLog.id;
+
+
     var message = "Log Id: " + routeLog.id;
     switch (routeLog.status) {
         case "SUCCESS":
